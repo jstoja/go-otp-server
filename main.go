@@ -20,29 +20,28 @@ func SendFile(w io.Writer, filename string) {
 	}
 }
 
-func HandleStaticFiles(w http.ResponseWriter, r *http.Request) {
+func HandleIndex(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/":
 		SendFile(w, "views/index.html")
-	case "/chart.js":
-		SendFile(w, "assets/chart.js")
 	}
 }
 
 func HandleRequires(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
+	if r.Method == "GET" {
 		str := r.URL.Query()["otp"][0]
-		j, _ := json.Marshal(otp.Totp(str))
-		fmt.Println(str)
-		fmt.Printf("OTP required for pass: %s\n", string(j))
+		j, _ := json.Marshal(gotp.Totp(str))
+		//fmt.Println(str)
+		//fmt.Printf("OTP required for pass: %s\n", string(j))
 		fmt.Fprintln(w, string(j))
 	}
 }
 
 func main() {
 	//password := "ymybvnckruprgkgr"
-	http.HandleFunc("/", HandleStaticFiles)
-	http.HandleFunc("/require", HandleRequires)
-	//fmt.Printf("%d\n", otp.Totp(password))
+	http.HandleFunc("/", HandleIndex)
+	http.HandleFunc("/requireOTP", HandleRequires)
+	//http.HandleFunc("/register", HandleRegister)
+	//fmt.Printf("%d\n", gotp.Totp(password))
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

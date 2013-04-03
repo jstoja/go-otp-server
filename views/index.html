@@ -1,16 +1,61 @@
 <html>
-	<h1>It Works!</h1>
-	<!--<script type="text/javascript" src="chart.js" />-->
 	<script type="text/javascript">
+		var token = "";
+		var timer = 30;
+		var t, tt;
+		var asp;
+		//var interv = false;
+		function Init() {
+			asp = document.getElementById("asp").value;
+			if (asp !== "") {
+				SendASP();
+				var date = new Date;
+				tt = setInterval(Clock, 1000);
+				if (date.getSeconds() === 30 || date.getSeconds() == 0) {
+					SendASP();
+					Clock();
+				} else {
+					var savedTime = date.getSeconds();
+					if (savedTime > 30) {
+						savedTime -= 30;
+					}
+					console.log("savedTime = " + savedTime);
+					timer = 30-savedTime;
+					Clock();
+				}
+			}
+		}
 		function SendASP() {
-		xmlhttp = new XMLHttpRequest();
-		xmlhttp.open("GET", "/require?otp=" + document.getElementById("asp").value, false);
-		xmlhttp.send(null);
-		console.log(xmlhttp.responseText);
-	}
-	var t=setInterval(SendASP,10000);
+			if (asp !== "") {
+				xmlhttp = new XMLHttpRequest();
+				xmlhttp.open("GET", "/requireOTP?otp=" + asp, false);
+				xmlhttp.send(null);
+				token = xmlhttp.responseText;
+				document.getElementById("token").innerHTML = token + " ";
+				var date = new Date;
+				console.log(date.getSeconds());
+				timer = 30;
+			}
+		}
+		function Clock() {
+			if (token === "") {
+				document.getElementById("token").innerHTML = "Not calculated yet ";
+			} else {
+
+				//document.getElementById("token").innerHTML = token + " ";
+				document.getElementById("timer").innerHTML = timer + "s";
+				if (timer == 0) {
+					SendASP();
+					document.getElementById("token").innerHTML = token + " ";
+					document.getElementById("timer").innerHTML = timer + "s";
+				}
+			}
+			timer--;
+		}
+		//var t=setInterval(SendASP,30000);
 	</script>
-		<label>Key:</label>
+		<h1>Key:</h1>
 		<input id="asp" type="text" name="otp"></input>
-		<button type="button" onClick="SendASP();"/>Valider</button>
+		<button type="button" onClick="Init();"/>Valider</button>
+		<h1 id=""><span id="token">Not calculated yet </span><span id="timer"></span></h1>
 </html>
