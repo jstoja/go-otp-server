@@ -1,0 +1,16 @@
+<html>
+	<h1>It Works!</h1>
+	<!--<script type="text/javascript" src="chart.js" />-->
+	<script type="text/javascript">
+		function SendASP() {
+		xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("GET", "/require?otp=" + document.getElementById("asp").value, false);
+		xmlhttp.send(null);
+		console.log(xmlhttp.responseText);
+	}
+	var t=setInterval(SendASP,10000);
+	</script>
+		<label>Key:</label>
+		<input id="asp" type="text" name="otp"></input>
+		<button type="button" onClick="SendASP();"/>Valider</button>
+</html>
