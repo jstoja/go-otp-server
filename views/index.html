@@ -2,9 +2,7 @@
 	<script type="text/javascript">
 		var token = "";
 		var timer = 30;
-		var t, tt;
-		var asp;
-		//var interv = false;
+		var t, tt, asp;
 		function Init() {
 			asp = document.getElementById("asp").value;
 			if (asp !== "") {
@@ -19,7 +17,6 @@
 					if (savedTime > 30) {
 						savedTime -= 30;
 					}
-					console.log("savedTime = " + savedTime);
 					timer = 30-savedTime;
 					Clock();
 				}
@@ -32,8 +29,6 @@
 				xmlhttp.send(null);
 				token = xmlhttp.responseText;
 				document.getElementById("token").innerHTML = token + " ";
-				var date = new Date;
-				console.log(date.getSeconds());
 				timer = 30;
 			}
 		}
@@ -41,8 +36,6 @@
 			if (token === "") {
 				document.getElementById("token").innerHTML = "Not calculated yet ";
 			} else {
-
-				//document.getElementById("token").innerHTML = token + " ";
 				document.getElementById("timer").innerHTML = timer + "s";
 				if (timer == 0) {
 					SendASP();
@@ -52,7 +45,6 @@
 			}
 			timer--;
 		}
-		//var t=setInterval(SendASP,30000);
 	</script>
 		<h1>Key:</h1>
 		<input id="asp" type="text" name="otp"></input>

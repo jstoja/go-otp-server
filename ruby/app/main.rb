@@ -1,36 +1,46 @@
 require 'base32'
+require 'json'
 require 'openssl'
 require 'sinatra'
 require 'rubygems'
 #require 'pg'
 require 'data_mapper'
-require 'dm-postgres-adapter'
+#require 'dm-postgres-adapter'
+require 'dm-core'  
+require 'dm-timestamps'
+require 'dm-validations'
+require 'dm-migrations'
 require 'pp'
-#require 'otp'
 
 use Rack::Static, :urls => ['/css', '/js'], :root => 'public'
 #DataMapper.setup(:default, 'postgres://qbestvanfyprfa:2mg-TW896fJalG_1_UR8bV0v9x@ec2-107-21-107-194.compute-1.amazonaws.com:5432/d9v8ggrp2ui4g4')
-DataMapper.setup(:default, 'postgres://julienbordellier@localhost/requireris')
+#DataMapper.setup(:default, 'postgres://julienbordellier@localhost/requireris')
+DataMapper.setup(:default, "sqlite://#{Dir.pwd}/database.db")
 DataMapper.finalize
 
-enable :sessions
-set :session_secret, 'this_is_the_fucking_requireris2'
+
 
 class Key
 	include DataMapper::Resource
-	property :id,					Serial
-	property :value, 			String, :unique => true
+	property :id,			Serial
+	property :value, 		String, :unique => true
+	property :name,			String
 	property :account_id,	Integer
-	#validates_presence_of :value, :account_id
+	validates_presence_of :value, :name, :account_id
 end
 
 class Account
 	include DataMapper::Resource
-	property :id,				Serial
+	property :id,			Serial
 	property :mail,			String, :unique => true
-	property :password,	String
+	property :password,		String
 	validates_presence_of :mail, :password
 end
+
+DataMapper.auto_upgrade!
+
+enable :sessions
+set :session_secret, 'this_is_the_fucking_requireris'
 
 get '/' do
 	if session[:user] != nil then
@@ -47,10 +57,9 @@ get '/login' do
 end
 
 post '/login' do
-	user = Account.all(:mail => params[:user], :password => params[:password])
-	if user != nil then
-		session[:user] = params[:user]
-		pp user.first.id
+	user = Account.all(:mail => params[:mail], :password => OpenSSL::Digest.digest("MD5", params[:password]))
+	if user != [] then
+		session[:user] = user.first.mail
 		session[:account_id] = user.first.id
 		redirect to('/')
 	else
@@ -60,30 +69,35 @@ end
 
 get '/logout' do
 	session.clear
+	redirect to('/login')
 end
-
 
 post '/register' do
 	DataMapper.finalize
 	@account = Account.create(
 		:mail 			=>	params[:mail],
-		#:password		=>	Base32.encode(OpenSSL::Digest.digest("SHA256", params[:password]))
-		:password		=>	params[:password]
+		:password		=>	OpenSSL::Digest.digest("MD5", params[:password])
 	)
 	redirect to('/')
 end
 
-post '/k' do
+post '/key' do
 	test = Key.new
 	test.value = params[:key]
+	test.name = params[:name]
 	test.account_id = session[:account_id]
 	test.save
 	@key = Key.all(:account_id => session[:account_id])
-	erb :index
+	redirect to('/')
 end
 
-get '/otp/:otp' do
-	totp_gen(params[:otp])
+get '/otp' do
+	otps = []
+	keys = Key.all(:account_id => session[:account_id])
+	for k in keys do
+		otps << totp_gen(k.value)
+	end
+	otps.to_json
 end
 
 def hotp_gen(password, interval_no)

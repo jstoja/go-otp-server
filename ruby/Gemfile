@@ -1,9 +1,22 @@
 source 'http://rubygems.org'
 
-gem 'base32'
 gem 'sinatra'
-gem 'data_mapper'
-gem 'dm-postgres-adapter'
-gem 'pg'
+
+gem 'dm-core'  
+gem 'dm-timestamps'
+gem 'dm-validations'
+gem 'dm-migrations'
+
+group :production do
+	gem 'pg'
+	gem 'dm-postgres-adapter'
+end
+group :development do
+	gem 'sqlite3'
+	gem 'dm-sqlite-adapter'
+end
+
+gem 'base32'
+gem 'json'
 gem 'thin'
 gem 'shotgun'

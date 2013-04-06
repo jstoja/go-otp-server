@@ -5,15 +5,8 @@
 <body>
 	<h1>Index</h1>
 
-	<h2>Add user</h2>
-	<form method="POST" action="/register">
-		<input type="textfield" name="mail" />
-		<input type="password" name="password" />
-		<input type="submit" />
-	</form>
-
 	<h2>Add key</h2>
-	<form method="POST" action="/k">
+	<form method="POST" action="/key">
 		<input type="textfield" name="name" />
 		<input type="textfield" name="key" />
 		<input type="submit" />
@@ -22,66 +15,53 @@
 	<h1>Liste</h1>
 	<div id="keys">
 		<% if @key != nil %>
-			<% for @k in @key %>
-				<div "key">
-					<p id="value"><%= @k.value %></p><p id="otp"></p>
-				</div>
-			<% end %>
+		<% for @k in @key %>
+		<div id="key">
+			<span id="name"><%= @k.name %></span> - <span id="otp"></span>
+		</div>
+		<% end %>
 		<% end %>
 	</div>
 	<script type="text/javascript">
-		var token = "";
-		var timer = 30;
-		var t, tt;
-		var asp;
-		function Init() {
-			//asp = document.getElementById("asp").value;
-			if (asp !== "") {
-				SendASP();
-				var date = new Date;
-				tt = setInterval(Clock, 1000);
-				if (date.getSeconds() === 30 || date.getSeconds() == 0) {
-					SendASP();
-					Clock();
-				} else {
-					var savedTime = date.getSeconds();
-					if (savedTime > 30) {
-						savedTime -= 30;
-					}
-					console.log("savedTime = " + savedTime);
-					timer = 30-savedTime;
-					Clock();
-				}
+	var timer = 0;
+	var t;
+	function Init() {
+		var date = new Date;
+		tt = setInterval(Clock, 1000);
+		if (date.getSeconds() === 30 || date.getSeconds() == 0) {
+			Clock();
+		} else {
+			var savedTime = date.getSeconds();
+			if (savedTime > 30) {
+				savedTime -= 30;
 			}
+			Clock();
+			timer = 30-savedTime;
 		}
-		function SendASP() {
-			if (asp !== "") {
-				xmlhttp = new XMLHttpRequest();
-				xmlhttp.open("GET", "/otp/" + asp, false);
-				xmlhttp.send(null);
-				token = xmlhttp.responseText;
-				//document.getElementById("token").innerHTML = token + " ";
-				var date = new Date;
-				console.log(date.getSeconds());
-				timer = 30;
-			}
+	}
+	function SendASP() {
+		xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("GET", "/otp", false);
+		xmlhttp.send(null);
+		return (eval(xmlhttp.responseText));
+	}
+	function ActualizeKeys() {
+		tokens = SendASP();
+		console.log(tokens);
+		var keys = document.getElementById('keys').children;
+		for (var i = keys.length - 1; i >= 0; i--) {
+			keys[i].children[1].innerText = tokens[i];
+		};
+	}
+	function Clock() {
+		if (timer == 0) {
+			ActualizeKeys();
+			timer = 30;
 		}
-
-		function ActualizeKey(key) {
-			console.log(key);
-		}
-
-		function Clock() {
-			var keys = document.getElementById('keys').children;
-			for (var i = keys.length - 1; i >= 0; i--) {
-				ActualizeKey(keys[i]);
-			};
-			console.log(timer);
-			timer--;
-		}
-		asp = "sdfljhsdf";
-		Init();
-		//var t=setInterval(SendASP,30000);
-		</script>
-	</body>
+		console.log(timer);
+		timer--;
+	}
+	Init();
+	</script>
+</body>
 </hmtl>
