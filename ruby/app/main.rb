@@ -12,7 +12,6 @@ require 'dm-validations'
 require 'dm-migrations'
 require 'pp'
 
-use Rack::Static, :urls => ['/css', '/js'], :root => 'public'
 #DataMapper.setup(:default, 'postgres://qbestvanfyprfa:2mg-TW896fJalG_1_UR8bV0v9x@ec2-107-21-107-194.compute-1.amazonaws.com:5432/d9v8ggrp2ui4g4')
 #DataMapper.setup(:default, 'postgres://julienbordellier@localhost/requireris')
 DataMapper.setup(:default, "sqlite://#{Dir.pwd}/database.db")
@@ -78,6 +77,8 @@ post '/register' do
 		:mail 			=>	params[:mail],
 		:password		=>	OpenSSL::Digest.digest("MD5", params[:password])
 	)
+	session[:user] = params[:mail]
+	session[:account_id] = @account.id
 	redirect to('/')
 end
 
@@ -98,6 +99,11 @@ get '/otp' do
 		otps << totp_gen(k.value)
 	end
 	otps.to_json
+end
+
+get '/delete/:id' do
+	Key.first(:id => params[:id]).destroy
+	redirect to('/')
 end
 
 def hotp_gen(password, interval_no)

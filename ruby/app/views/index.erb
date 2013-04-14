@@ -1,67 +1,38 @@
-<html>
-<head>
-	<title>Requireris</title>
-</head>
-<body>
-	<h1>Index</h1>
-
-	<h2>Add key</h2>
+<div class="span12">
+	<div class="span4 offset4">
+		<h1>Requireris42</h1>
+	</div>
+	<div class="span4">
+		<h4><a href="/logout">Logout</a></h4>
+	</div>
+</div>
+<hr/>
+<hr/>
+<hr/>
+<div class="span4 offset4">
+	<h3>Add key</h3>
 	<form method="POST" action="/key">
-		<input type="textfield" name="name" />
-		<input type="textfield" name="key" />
+		<label>Name:</label>
+		<input type="text" name="name" /><br />
+		<label>Key:</label>
+		<input type="text" name="key" /><br />
 		<input type="submit" />
 	</form>
-
-	<h1>Liste</h1>
-	<div id="keys">
+</div>
+<div class="span4 offset4">
+	<h3>Liste</h3>
+	<div class="container" id="keys">
 		<% if @key != nil %>
 		<% for @k in @key %>
-		<div id="key">
-			<span id="name"><%= @k.name %></span> - <span id="otp"></span>
+		<div class="span12 inline" id="key">
+			<div id="name">
+				<h4><%= @k.name %></h4>
+			</div>
+			<div id="otp"></div>
+			<a href=<%= '/delete/' + @k.id.to_s %>>Delete</a>
 		</div>
 		<% end %>
 		<% end %>
 	</div>
-	<script type="text/javascript">
-	var timer = 0;
-	var t;
-	function Init() {
-		var date = new Date;
-		tt = setInterval(Clock, 1000);
-		if (date.getSeconds() === 30 || date.getSeconds() == 0) {
-			Clock();
-		} else {
-			var savedTime = date.getSeconds();
-			if (savedTime > 30) {
-				savedTime -= 30;
-			}
-			Clock();
-			timer = 30-savedTime;
-		}
-	}
-	function SendASP() {
-		xmlhttp = new XMLHttpRequest();
-		xmlhttp.open("GET", "/otp", false);
-		xmlhttp.send(null);
-		return (eval(xmlhttp.responseText));
-	}
-	function ActualizeKeys() {
-		tokens = SendASP();
-		console.log(tokens);
-		var keys = document.getElementById('keys').children;
-		for (var i = keys.length - 1; i >= 0; i--) {
-			keys[i].children[1].innerText = tokens[i];
-		};
-	}
-	function Clock() {
-		if (timer == 0) {
-			ActualizeKeys();
-			timer = 30;
-		}
-		console.log(timer);
-		timer--;
-	}
-	Init();
-	</script>
-</body>
-</hmtl>
+	<script type="text/javascript" src="js/main.js"></script>
+</div>
