@@ -17,8 +17,6 @@ require 'pp'
 DataMapper.setup(:default, "sqlite://#{Dir.pwd}/database.db")
 DataMapper.finalize
 
-
-
 class Key
 	include DataMapper::Resource
 	property :id,			Serial
